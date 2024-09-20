@@ -1,14 +1,13 @@
 {
   "expo": {
-    "name": "hello-world",
-    "slug": "reagent-expo",
+    "name": "larmy",
+    "slug": "larmy",
     "privacy": "public",
     "platforms": [
-      "ios",
       "android",
       "web"
     ],
-    "version": "1.0.0",
+    "version": "0.0.1",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "splash": {
@@ -22,8 +21,11 @@
     "assetBundlePatterns": [
       "**/*"
     ],
-    "ios": {
-      "supportsTablet": true
-    }
+    "extra": {
+      "eas": {
+        "projectId": "e1d6c6af-5d7b-4065-9974-b7893acf1293"
+      }
+    },
+    "owner": "embodiedsunshine"
   }
 }
