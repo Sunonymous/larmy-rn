@@ -2,11 +2,13 @@
   (:require [example.events]
             [example.subs]
             [example.widgets :refer [button]]
+            [clojure.math :refer [floor]]
             [expo.root :as expo-root]
             ["expo-status-bar" :refer [StatusBar]]
             [re-frame.core :as rf]
             ["react-native" :as rn]
             [reagent.core :as r]
+            ["@react-native-community/slider$default" :as Slider]
             ["@react-navigation/native" :as rnn]
             ["@react-navigation/native-stack" :as rnn-stack]))
 
@@ -15,44 +17,67 @@
 
 (defonce Stack (rnn-stack/createNativeStackNavigator))
 
-(defn home [^js props]
-  (r/with-let [counter (rf/subscribe [:get-counter])
-               tap-enabled? (rf/subscribe [:counter-tappable?])]
-    [:> rn/View {:style {:flex 1
-                         :padding-vertical 50
-                         :justify-content :space-between
-                         :align-items :center
-                         :background-color :white}}
-     [:> rn/View {:style {:align-items :center}}
-      [:> rn/Text {:style {:font-weight   :bold
-                           :font-size     72
-                           :color         :blue
-                           :margin-bottom 20}} @counter]
-      [button {:on-press #(rf/dispatch [:inc-counter])
-               :disabled? (not @tap-enabled?)
-               :style {:background-color :blue}}
-       "Tap me, I'll count"]]
-     [:> rn/View {:style {:align-items :center}}
-      [button {:on-press (fn []
-                           (-> props .-navigation (.navigate "About")))}
-       "Tap me, I'll navigate"]]
-     [:> rn/View
-      [:> rn/View {:style {:flex-direction :row
-                           :align-items :center
-                           :margin-bottom 20}}
-       [:> rn/Image {:style {:width  160
-                             :height 160}
-                     :source cljs-splash}]
-       [:> rn/Image {:style {:width  160
-                             :height 160}
-                     :source shadow-splash}]]
-      [:> rn/Text {:style {:font-weight :normal
-                           :font-size   15
-                           :color       :blue}}
-       "Using: shadow-cljs+expo+reagent+re-frame"]]
-     [:> StatusBar {:style "auto"}]]))
+(defonce time-values
+  ["5sec"
+  "15sec"
+  "30sec"
+  "45sec"
+  "1min"
+  "5min"
+  "15min"
+  "30min"
+  "45min"
+  "1hr"
+  "4hr"
+  "8hr"
+  "16hr"
+  "1day"
+  "3day"
+  "5day"
+  "1week"
+  "2week"
+  "3week"
+  "1month"])
 
-(defn- about 
+(def time-sections ["seconds" "minutes" "hours" "days" "weeks" "month"])
+
+(defn home [^js props]
+  (r/with-let [larmy-voice*  (r/atom "Hello.")
+               slider-val*   (r/atom 0)
+               tap-enabled?  (rf/subscribe [:counter-tappable?])]
+    (fn [^js props]
+      [:> rn/View {:style {:flex 1
+                           :padding-vertical 50
+                           :justify-content :space-between
+                           :align-items :center
+                           :background-color :white}}
+       [:> rn/View {:style {:align-items :center}}
+        [:> rn/Text {:style {:font-weight   :bold
+                             :font-size     72
+                             :color         :blue
+                             :margin-bottom 20}}
+            ;; @slider-val* ;; TODO put this back or replace later once the other component is created
+        (if (pos? @slider-val*) "1 " "") " " (get time-sections (floor @slider-val*) "")]
+        [button {:on-press #(rf/dispatch [:inc-counter])
+                 :disabled? (not @tap-enabled?)
+                 :style {:background-color :blue}}
+         "Tap me, I'll count"]]
+       [:> rn/View {:style {:align-items :center}}
+        [:> Slider {:minimum-value    -1
+                    :maximum-value    (dec (count time-sections))
+                    :value            -1 ;; start in the "inactive state"
+                    :on-value-change #(reset! slider-val* %)
+                    :style            {:width 500 :height 40}
+                    :minimumTrackTintColor :blue
+                    :maximumTrackTintColor :gray}]
+        [button {:style {:align-self "flex-end"}
+                 :on-press (fn []
+                             (-> props .-navigation (.navigate "About")))}
+         "Tap me, I'll navigate"]]
+       [:> rn/View
+       [:> StatusBar {:style "auto"}]]])))
+
+(defn- about
   []
   (r/with-let [counter (rf/subscribe [:get-counter])]
     [:> rn/View {:style {:flex 1

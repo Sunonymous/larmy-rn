@@ -12,6 +12,7 @@
     "eas-build-post-install": "npx shadow-cljs release app"
   },
   "dependencies": {
+    "@react-native-community/slider": "^4.5.3",
     "@react-navigation/native": "^6.1.6",
     "@react-navigation/native-stack": "^6.9.12",
     "create-react-class": "^15.7.0",
