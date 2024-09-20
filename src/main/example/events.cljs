@@ -10,9 +10,9 @@
    app-db))
 
 (rf/reg-event-db
- :inc-counter
- (fn [db [_ _]]
-   (update db :counter inc)))
+ :set-alarm
+ (fn [db [_ alarm-details]]
+   db))
 
 (rf/reg-event-db
  :navigation/set-root-state

@@ -55,11 +55,13 @@
                            :justify-content :space-between
                            :align-items :center
                            :background-color :white}}
-       [button {:style {:align-self "flex-end"}
+       [:> rn/View {:style {:flex-direction :row}}
+        [:f> screen-wrapper] ;; TODO get this into a component which will update DB upon screen size change
+        [button {:style {:align-self "flex-end"}
                 :on-press #(-> props .-navigation (.navigate "About"))}
         "About"]
+       ]
        [:> rn/View {:style {:align-items :center}}
-        [:f> screen-wrapper] ;; TODO get this into a component which will update DB upon screen size change
         [:> rn/Text {:style {:font-weight   :bold
                              :font-size     72
                              :color         :blue
@@ -75,8 +77,8 @@
                     :minimumTrackTintColor :blue
                     :maximumTrackTintColor :gray}]
 
-        [button {:on-press #(rf/dispatch [:inc-counter])
-                 :disabled? (not @tap-enabled?)
+        [button {:on-press #()
+                 :disabled? true ;; TODO when slider has at least some time value
                  :style {:background-color :blue}}
          "Notify"]]
        [:> rn/View
@@ -96,17 +98,12 @@
                            :font-size     42
                            :color         :blue
                            :margin-bottom 20}}
-       "About Example App"]
-      [:> rn/Text {:style {:font-weight   :bold
-                           :font-size     20
-                           :color         :blue
-                           :margin-bottom 20}}
-       (str "Counter is at: " @counter)]
+       "About Larmy"]
       [:> rn/Text {:style {:font-weight :normal
                            :font-size   15
                            :color       :blue}}
        "Built with React Native, Expo, Reagent, re-frame, and React Navigation"]]
-     [:> StatusBar {:style "auto"}]]))
+     ]))
 
 (defn root []
   ;; The save and restore of the navigation root state is for development time bliss
