@@ -12,9 +12,6 @@
             ["@react-navigation/native" :as rnn]
             ["@react-navigation/native-stack" :as rnn-stack]))
 
-(defonce shadow-splash (js/require "../assets/shadow-cljs.png"))
-(defonce cljs-splash (js/require "../assets/cljs.png"))
-
 (defonce Stack (rnn-stack/createNativeStackNavigator))
 
 (defonce time-values
@@ -41,6 +38,13 @@
 
 (def time-sections ["seconds" "minutes" "hours" "days" "weeks" "month"])
 
+(defn screen-wrapper []
+  (let [window-properties (rn/useWindowDimensions)
+        clj-dimensions    (js->clj window-properties)]
+    [:> rn/View
+     [:> rn/Text
+      (str (.toFixed (clj-dimensions "width") 2) " x " (.toFixed (clj-dimensions "height") 2))]]))
+
 (defn home [^js props]
   (r/with-let [larmy-voice*  (r/atom "Hello.")
                slider-val*   (r/atom 0)
@@ -51,31 +55,32 @@
                            :justify-content :space-between
                            :align-items :center
                            :background-color :white}}
+       [button {:style {:align-self "flex-end"}
+                :on-press #(-> props .-navigation (.navigate "About"))}
+        "About"]
        [:> rn/View {:style {:align-items :center}}
+        [:f> screen-wrapper] ;; TODO get this into a component which will update DB upon screen size change
         [:> rn/Text {:style {:font-weight   :bold
                              :font-size     72
                              :color         :blue
                              :margin-bottom 20}}
             ;; @slider-val* ;; TODO put this back or replace later once the other component is created
-        (if (pos? @slider-val*) "1 " "") " " (get time-sections (floor @slider-val*) "")]
-        [button {:on-press #(rf/dispatch [:inc-counter])
-                 :disabled? (not @tap-enabled?)
-                 :style {:background-color :blue}}
-         "Tap me, I'll count"]]
+         (if (pos? @slider-val*) "1 " "") " " (get time-sections (floor @slider-val*) "")]]
        [:> rn/View {:style {:align-items :center}}
         [:> Slider {:minimum-value    -1
                     :maximum-value    (dec (count time-sections))
                     :value            -1 ;; start in the "inactive state"
                     :on-value-change #(reset! slider-val* %)
-                    :style            {:width 500 :height 40}
+                    :style            {:width 300 :height 40}
                     :minimumTrackTintColor :blue
                     :maximumTrackTintColor :gray}]
-        [button {:style {:align-self "flex-end"}
-                 :on-press (fn []
-                             (-> props .-navigation (.navigate "About")))}
-         "Tap me, I'll navigate"]]
+
+        [button {:on-press #(rf/dispatch [:inc-counter])
+                 :disabled? (not @tap-enabled?)
+                 :style {:background-color :blue}}
+         "Notify"]]
        [:> rn/View
-       [:> StatusBar {:style "auto"}]]])))
+        [:> StatusBar {:style "auto"}]]])))
 
 (defn- about
   []
@@ -88,7 +93,7 @@
                          :background-color :white}}
      [:> rn/View {:style {:align-items :flex-start}}
       [:> rn/Text {:style {:font-weight   :bold
-                           :font-size     54
+                           :font-size     42
                            :color         :blue
                            :margin-bottom 20}}
        "About Example App"]
@@ -116,7 +121,7 @@
      [:> Stack.Navigator
       [:> Stack.Screen {:name "Home"
                         :component (fn [props] (r/as-element [home props]))
-                        :options {:title "Example App"}}]
+                        :options {:title "Larmy"}}]
       [:> Stack.Screen {:name "About"
                         :component (fn [props] (r/as-element [about props]))
                         :options {:title "About"}}]]]))
